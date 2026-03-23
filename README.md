@@ -2,6 +2,13 @@
 
 A Vue 3 + Tailwind CSS application for visualizing Claude Code session data, including dialogue history, message content, timestamps, and token usage statistics.
 
+
+<p align="center"><img src ="./doc/pic/demo_1.png" ></p>
+
+<p align="center"><img src ="./doc/pic/demo_2.png" ></p>
+
+
+
 ## Quick Start
 
 ### 1. Install Dependencies
