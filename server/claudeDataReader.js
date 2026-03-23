@@ -29,22 +29,64 @@ export async function readSessions() {
           const sessionId = file.replace('.jsonl', '')
           const filePath = path.join(projectPath, file)
 
-          // Count messages in session
+          // Count messages and extract metadata
           const content = fs.readFileSync(filePath, 'utf-8')
           const lines = content.trim().split('\n').filter(l => l.length > 0)
           const messageCount = lines.length
+
+          let sessionName = sessionId.substring(0, 8) + '...'
+          let firstTimestamp = null
+          let lastTimestamp = null
+          const modelsUsed = new Set()
+
+          // Parse messages to extract first user message as name and collect metadata
+          for (const line of lines) {
+            try {
+              const message = JSON.parse(line)
+              const timestamp = message.timestamp || message.message?.timestamp
+
+              // Track first and last timestamps for duration calculation
+              if (timestamp) {
+                if (!firstTimestamp) firstTimestamp = new Date(timestamp)
+                lastTimestamp = new Date(timestamp)
+              }
+
+              // Use first user message as session name
+              if (!sessionName.includes('...') && message.type === 'user' && message.content) {
+                const firstLine = message.content.split('\n')[0]
+                sessionName = firstLine.length > 50 ? firstLine.substring(0, 50) + '...' : firstLine
+              }
+
+              // Collect models used
+              if (message.message?.model) {
+                modelsUsed.add(message.message.model)
+              }
+            } catch (e) {
+              // Continue parsing if individual message fails
+            }
+          }
 
           // Get file modification time
           const stats = fs.statSync(filePath)
           const date = stats.mtime
 
+          // Calculate duration in minutes
+          let duration = null
+          if (firstTimestamp && lastTimestamp) {
+            duration = Math.round((lastTimestamp - firstTimestamp) / 60000)
+          }
+
           sessions.push({
             id: sessionId,
             project: decodeURIComponent(projectDir),
-            name: sessionId.substring(0, 8) + '...',
+            name: sessionName,
             date,
             messageCount,
-            path: filePath
+            path: filePath,
+            firstTimestamp,
+            lastTimestamp,
+            duration,
+            models: Array.from(modelsUsed)
           })
         }
       }
@@ -75,14 +117,43 @@ export async function readSessionMessages(sessionId) {
         for (const line of lines) {
           try {
             const message = JSON.parse(line)
+            const msgData = message.message || {}
+
             messages.push({
+              // Core fields
               type: message.type || 'unknown',
               content: message.content || '',
-              timestamp: message.timestamp || new Date().toISOString(),
-              inputTokens: message.inputTokens || null,
-              outputTokens: message.outputTokens || null,
+              timestamp: message.timestamp || msgData.timestamp || new Date().toISOString(),
+              uuid: message.uuid || null,
+
+              // Message metadata
+              role: msgData.role || null,
+              model: msgData.model || null,
+
+              // Token usage breakdown
+              tokens: {
+                input: msgData.usage?.input_tokens || null,
+                output: msgData.usage?.output_tokens || null,
+                cacheRead: msgData.usage?.cache_read_input_tokens || null,
+                cacheCreation: msgData.usage?.cache_creation_input_tokens || null
+              },
+
+              // Backward compatibility for token fields
+              inputTokens: msgData.usage?.input_tokens || message.inputTokens || null,
+              outputTokens: msgData.usage?.output_tokens || message.outputTokens || null,
+
+              // Session context
+              gitBranch: message.gitBranch || null,
+              cwd: message.cwd || null,
+              version: message.version || null,
+              parentUuid: message.parentUuid || null,
+
+              // Tool information
               toolName: message.toolName || null,
-              toolInput: message.toolInput || null
+              toolInput: message.toolInput || null,
+
+              // Task data
+              todos: message.todos || null
             })
           } catch (parseError) {
             console.error('Error parsing message:', parseError)

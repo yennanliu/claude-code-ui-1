@@ -16,6 +16,7 @@
         <DialogueViewer
           v-if="selectedSession"
           :session-id="selectedSession"
+          :session-data="selectedSessionData"
           :messages="messages"
         />
         <div v-else class="flex items-center justify-center h-full text-gray-500">
@@ -32,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import SessionList from './components/SessionList.vue'
 import DialogueViewer from './components/DialogueViewer.vue'
@@ -44,6 +45,10 @@ const messages = ref([])
 const stats = ref({})
 
 const API_BASE = '/api'
+
+const selectedSessionData = computed(() => {
+  return sessions.value.find(s => s.id === selectedSession.value) || {}
+})
 
 onMounted(async () => {
   await refreshSessions()
