@@ -22,6 +22,15 @@ app.get('/api/sessions', async (req, res) => {
 app.get('/api/sessions/:sessionId', async (req, res) => {
   try {
     const messages = await readSessionMessages(req.params.sessionId)
+    console.log(`[DEBUG] Session ${req.params.sessionId}: ${messages.length} messages loaded`)
+    if (messages.length > 0) {
+      const types = {}
+      messages.forEach(m => {
+        types[m.type] = (types[m.type] || 0) + 1
+      })
+      console.log(`[DEBUG] Message types:`, types)
+      console.log(`[DEBUG] First message:`, JSON.stringify(messages[0], null, 2))
+    }
     res.json({ messages })
   } catch (error) {
     console.error('Error reading session messages:', error)

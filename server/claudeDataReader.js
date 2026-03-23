@@ -122,7 +122,7 @@ export async function readSessionMessages(sessionId) {
             messages.push({
               // Core fields
               type: message.type || 'unknown',
-              content: message.content || '',
+              content: msgData.content || message.content || '',
               timestamp: message.timestamp || msgData.timestamp || new Date().toISOString(),
               uuid: message.uuid || null,
 

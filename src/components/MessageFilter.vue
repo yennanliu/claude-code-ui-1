@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 
 const props = defineProps({
   messages: {
@@ -67,14 +67,39 @@ const props = defineProps({
 
 const emit = defineEmits(['filter-change'])
 
-const messageTypes = ['user', 'assistant', 'tool_use', 'tool_result', 'system']
-const selectedTypes = ref([...messageTypes])
 const selectedModel = ref('')
 const searchText = ref('')
 
+// Get all unique message types from the messages
+const messageTypes = computed(() => {
+  const types = new Set()
+  props.messages.forEach(msg => {
+    types.add(msg.type)
+  })
+  return Array.from(types).sort()
+})
+
+// Select all message types by default
+const selectedTypes = ref([])
+
+// Initialize with all types when messages are available
+const initializeTypes = () => {
+  selectedTypes.value = [...messageTypes.value]
+  emitFilterChange()
+}
+
 // Emit initial state so DialogueViewer shows all messages by default
 onMounted(() => {
-  emitFilterChange()
+  if (props.messages.length > 0) {
+    initializeTypes()
+  }
+})
+
+// Watch for message changes and update available types
+watch(() => props.messages.length, () => {
+  if (props.messages.length > 0 && selectedTypes.value.length === 0) {
+    initializeTypes()
+  }
 })
 
 const availableModels = computed(() => {
@@ -86,18 +111,21 @@ const availableModels = computed(() => {
 })
 
 const hasActiveFilters = computed(() => {
-  return selectedTypes.value.length !== messageTypes.length || selectedModel.value || searchText.value
+  return selectedTypes.value.length !== messageTypes.value.length || selectedModel.value || searchText.value
 })
 
 const formatType = (type) => {
   const typeMap = {
     'user': '👤 User',
     'assistant': '🤖 Assistant',
-    'tool_use': '🔧 Tool',
-    'tool_result': '📦 Result',
-    'system': '⚙️ System'
+    'tool_use': '🔧 Tool Use',
+    'tool_result': '📦 Tool Result',
+    'system': '⚙️ System',
+    'file-history-snapshot': '📸 Snapshot',
+    'hook_progress': '🪝 Hook Progress',
+    'create': '✨ Create'
   }
-  return typeMap[type] || type
+  return typeMap[type] || `${type}`
 }
 
 const formatModel = (model) => {
