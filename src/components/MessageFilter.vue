@@ -1,8 +1,8 @@
 <template>
-  <div class="border-b border-gray-200 bg-gray-50 p-4 space-y-3">
+  <div class="border-b border-gray-200 dark:border-[#334155] bg-gray-50 dark:bg-[#334155] p-4 space-y-3">
     <!-- Type Filters -->
     <div class="space-y-2">
-      <label class="text-xs font-semibold text-gray-700 uppercase">Message Types</label>
+      <label class="text-xs font-semibold text-gray-700 dark:text-[#cbd5e1] uppercase">Message Types</label>
       <div class="flex flex-wrap gap-2">
         <label v-for="type in messageTypes" :key="type" class="flex items-center gap-2 cursor-pointer">
           <input
@@ -10,20 +10,20 @@
             :value="type"
             v-model="selectedTypes"
             @change="emitFilterChange"
-            class="w-4 h-4 rounded border-gray-300 text-indigo-600"
+            class="w-4 h-4 rounded border-gray-300 dark:border-[#334155] text-indigo-600"
           />
-          <span class="text-sm text-gray-700">{{ formatType(type) }}</span>
+          <span class="text-sm text-gray-700 dark:text-[#cbd5e1]">{{ formatType(type) }}</span>
         </label>
       </div>
     </div>
 
     <!-- Model Filter -->
     <div class="space-y-2">
-      <label class="text-xs font-semibold text-gray-700 uppercase">Model</label>
+      <label class="text-xs font-semibold text-gray-700 dark:text-[#cbd5e1] uppercase">Model</label>
       <select
         v-model="selectedModel"
         @change="emitFilterChange"
-        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[#334155] rounded-md bg-white dark:bg-[#1e293b] text-gray-900 dark:text-[#f1f5f9] focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
       >
         <option value="">All Models</option>
         <option v-for="model in availableModels" :key="model" :value="model">
@@ -34,13 +34,13 @@
 
     <!-- Search -->
     <div class="space-y-2">
-      <label class="text-xs font-semibold text-gray-700 uppercase">Search Content</label>
+      <label class="text-xs font-semibold text-gray-700 dark:text-[#cbd5e1] uppercase">Search Content</label>
       <input
         v-model="searchText"
         @input="emitFilterChange"
         type="text"
         placeholder="Search message content..."
-        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-[#334155] rounded-md bg-white dark:bg-[#1e293b] text-gray-900 dark:text-[#f1f5f9] placeholder-gray-400 dark:placeholder-[#94a3b8] focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
       />
     </div>
 
@@ -48,7 +48,7 @@
     <button
       @click="clearFilters"
       v-if="hasActiveFilters"
-      class="w-full px-3 py-2 text-sm bg-white text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100 transition"
+      class="w-full px-3 py-2 text-sm bg-white dark:bg-[#1e293b] text-gray-700 dark:text-[#cbd5e1] border border-gray-300 dark:border-[#334155] rounded-md hover:bg-gray-100 dark:hover:bg-[#334155] transition"
     >
       Clear Filters
     </button>

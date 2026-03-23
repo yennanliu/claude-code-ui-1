@@ -11,3 +11,22 @@ html, body, #app {
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
+
+@layer base {
+  html.dark {
+    @apply bg-[#0f172a] text-[#f1f5f9];
+  }
+}
+
+/* Dark scrollbar */
+.dark-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dark-scrollbar::-webkit-scrollbar-track {
+  @apply bg-[#1e293b];
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-[#334155] rounded;
+}
